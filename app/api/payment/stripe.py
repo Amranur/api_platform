@@ -38,8 +38,8 @@ async def create_checkout_session(request: Request):
         success_url = "http://localhost:5173/deshboard?session_id={CHECKOUT_SESSION_ID}" 
         cancel_url=f'http://localhost:5173/cancel'
         
-        # success_url = "http://localhost:8000/success?session_id={CHECKOUT_SESSION_ID}" 
-        # cancel_url=f'http://localhost:8000/cancel'
+        success_url = "http://localhost:8000/success?session_id={CHECKOUT_SESSION_ID}" 
+        cancel_url=f'http://localhost:8000/cancel'
 
 
 
