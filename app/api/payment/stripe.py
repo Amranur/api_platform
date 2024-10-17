@@ -2,17 +2,23 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse,JSONResponse
 import stripe
 from fastapi.templating import Jinja2Templates
+import os
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
+# Access the variables
+STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+stripe.api_key = STRIPE_API_KEY
 templates = Jinja2Templates(directory="app/api/payment/templates")
 
 router = APIRouter()
-stripe.api_key = "sk_test_51QA326PL5yHI8P585Oc339JrayrlRjTTM5hekXDvGCjFnKrhzyCdJS0U0D7tMSgvzOXYQwD4SC4Cbo9KA6DMSu1800u8Eg8yL1"
-YOUR_STRIPE_PUBLISHABLE_KEY = "pk_test_51QA326PL5yHI8P58bx3KjSA2x71wzkhgyOGw4d8D4WKpUqKd4rOIjbVv1WvlfA73B1OV1bf0Tnz6lYEbDDoIZJPv00CoUwnbiW"
 
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "publishable_key": YOUR_STRIPE_PUBLISHABLE_KEY})
+    return templates.TemplateResponse("index.html", {"request": request, "publishable_key": STRIPE_PUBLISHABLE_KEY})
 
 @router.post("/create-checkout-session-stripe")
 async def create_checkout_session(request: Request):
