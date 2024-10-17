@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+sqlalchemy
+passlib
+python-jose
+requests
+beautifulsoup4
+langchain-community
+groq
+python-multipart
+bcrypt
+mysql-connector-python
+pymysql
+pydantic[email]
+oauthlib
+stripe
+jinja2
