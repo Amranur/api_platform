@@ -389,6 +389,8 @@ def search_pg_json(query: str,
                     "content": result.get("content"),
                     "score": result.get("score"),
                     "thumbnail": result.get("thumbnail"),
+                    "category":result.get("category"),
+                    "score":result.get("score"),
                 }
                 for result in response_data.get("results", [])
             ]
@@ -396,6 +398,7 @@ def search_pg_json(query: str,
             # Return the filtered results and the number of results
             return {
                 "followup": response_data.get("suggestions"),
+                "category":response_data.get("category"),
                 "query": query,
                 "number_of_results": len(limited_results),
                 "results": limited_results
