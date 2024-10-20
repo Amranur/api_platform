@@ -19,8 +19,7 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    # secret_key="SESSION_SECRET_KEY",
-    allow_origins=["*"],
+    allow_origins=["https://searchapi.sobjanta.ai/", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
