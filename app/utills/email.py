@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 def send_email(email: str,  subject: str, body: str):
     # SMTP server configuration
     smtp_host = "mail.sobjanta.ai"
-    smtp_port = 587  # SSL/TLS port
+    smtp_port = 465  # SSL/TLS port
     smtp_user = "sobjanta@sobjanta.ai"
     smtp_password = "Tkgl@432!"
 
@@ -33,7 +33,7 @@ def send_verification_email(email: str, verify_code: str):
     print("come1")
     # SMTP server configuration
     smtp_host = "mail.sobjanta.ai"
-    smtp_port = 587  # SSL/TLS port
+    smtp_port = 465  # SSL/TLS port
     smtp_user = "sobjanta@sobjanta.ai"
     smtp_password = "Tkgl@432!"
     print("come12")
