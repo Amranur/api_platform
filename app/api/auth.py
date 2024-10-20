@@ -381,7 +381,7 @@ class EmailSchema(BaseModel):
     name: str
     details: str
 
-@router.post("/contact-us/")
+@router.post("/user/contactus/")
 def send_email_endpoint(email_schema: EmailSchema): 
     subject = "Email From - " + email_schema.email
     body ="Name: " + email_schema.name + "\n" + "Email: " + email_schema.email+ "\n" + "Details: " + email_schema.details
