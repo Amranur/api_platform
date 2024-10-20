@@ -20,6 +20,9 @@ class User(Base):
     access_token = Column(String(255), nullable=True)
     register_type = Column(String(55), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow) 
+     # New fields for IP addresses
+    register_ip = Column(String(45), nullable=True)  # For IPv4 or IPv6
+    login_ip = Column(String(45), nullable=True)  # For IPv4 or IPv6
 
     # Relationship with the Plan table
     plans = relationship("UserPlan", back_populates="user")

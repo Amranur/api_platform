@@ -17,6 +17,7 @@ from sqlalchemy import func
 from fastapi import APIRouter
 import asyncio
 from app.utills.email import send_verification_email 
+from fastapi import Request
 
 
 
@@ -25,6 +26,7 @@ router = APIRouter()
 @router.post("/register-customer")
 def register_customer(
     data: UserCreateRequest,
+    request: Request,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
@@ -35,7 +37,8 @@ def register_customer(
     
     hashed_password = get_password_hash(data.password)
     ev_code, ev_code_expire = generate_code_and_expiry()
-
+    # Get client IP address
+    client_ip = request.client.host
     user = User(
         name=data.name,
         email=data.email,
@@ -45,7 +48,8 @@ def register_customer(
         email_verified=False,
         ev_code=ev_code,
         ev_code_expire=ev_code_expire,
-        register_type="general"
+        register_type="general",
+        register_ip=client_ip  # Save the registration IP
     )
     
     db.add(user)
@@ -57,10 +61,43 @@ def register_customer(
 
     return {"message": "Customer registered successfully. Please check your email for verification."}
 
+@router.post("/signin")
+def login_user(sign_in_data: SignInSchema ,
+               request: Request,
+               background_tasks: BackgroundTasks ,
+               db: Session = Depends(get_db)):
+    print(sign_in_data.email, sign_in_data.password)
+    user = db.query(User).filter(User.email == sign_in_data.email).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    # Verify the password
+    if not verify_password(sign_in_data.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Username and Password not match!")
+    
+    if not user.email_verified:
+        # Generate a new verification code and update the expiration
+        ev_code, ev_code_expire = generate_code_and_expiry()
+        user.ev_code = ev_code
+        user.ev_code_expire = ev_code_expire
+        db.commit()
+
+        # Send the verification email
+        background_tasks.add_task(send_verification_email, user.email, user.ev_code)
+
+        raise HTTPException(status_code=400, detail="Email not verified. A new verification code has been sent to your email.")
+    
+    client_ip = request.client.host
+    user.login_ip = client_ip  # Save the login IP
+    db.commit()
+    access_token = create_access_token(data={"user_id": str(user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),db_session=db)
+    return {"access_token": access_token, "token_type": "Bearer"}
+
 
 @router.post("/google-sign")
 def register_customer(
     data: UserCreateRequest,
+    request: Request,
     db: Session = Depends(get_db)
 ):
     # Check if email already exists
@@ -70,7 +107,8 @@ def register_customer(
         access_token = create_access_token(data={"user_id": str(existing_user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES), db_session=db)
 
         return {"message": "ok", "access_token": access_token}
-
+    # Get client IP address
+    client_ip = request.client.host
    
     user = User(
         name=data.name,
@@ -81,7 +119,8 @@ def register_customer(
         email_verified=True,  
         ev_code=None,  
         ev_code_expire=None,  
-        register_type="google"  
+        register_type="google",
+        register_ip=client_ip  # Save registration IP for Google sign-in  
     )
 
     db.add(user)
@@ -154,31 +193,6 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
     return {"access_token": access_token, "token_type": "Bearer"}
 
 
-@router.post("/signin")
-def login_user(sign_in_data: SignInSchema ,background_tasks: BackgroundTasks ,db: Session = Depends(get_db)):
-    print(sign_in_data.email, sign_in_data.password)
-    user = db.query(User).filter(User.email == sign_in_data.email).first()
-    if not user:
-        raise HTTPException(status_code=400, detail="User not found")
-    
-    # Verify the password
-    if not verify_password(sign_in_data.password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Username and Password not match!")
-    
-    if not user.email_verified:
-        # Generate a new verification code and update the expiration
-        ev_code, ev_code_expire = generate_code_and_expiry()
-        user.ev_code = ev_code
-        user.ev_code_expire = ev_code_expire
-        db.commit()
-
-        # Send the verification email
-        background_tasks.add_task(send_verification_email, user.email, user.ev_code)
-
-        raise HTTPException(status_code=400, detail="Email not verified. A new verification code has been sent to your email.")
-    
-    access_token = create_access_token(data={"user_id": str(user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),db_session=db)
-    return {"access_token": access_token, "token_type": "Bearer"}
 
 
 class EmailSchema(BaseModel):
