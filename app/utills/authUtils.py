@@ -111,40 +111,13 @@ def role_required(roles: List[str]):
     return decorator
 
 def generate_six_digit_code():
-    chars = string.ascii_letters + string.digits + string.punctuation
-    return ''.join(random.choice(chars) for _ in range(6))
+    chars = string.ascii_uppercase + string.digits 
+    random_sys = random.SystemRandom()
+    return ''.join(random_sys.choice(chars) for _ in range(6))
+
 
 def generate_code_and_expiry():
     code = generate_six_digit_code()
     expiry = datetime.utcnow() + timedelta(minutes=5)
     return code, expiry
 
-def send_verification_email(email: str, verify_code: str):
-    print("come1")
-    # SMTP server configuration
-    smtp_host = "mail.sobjanta.ai"
-    smtp_port = 587  # SSL/TLS port
-    smtp_user = "sobjanta@sobjanta.ai"
-    smtp_password = "!ry1wrI_cV@$"
-    print("come12")
-    # Email content
-    subject = "Your  Verification Code"
-    body = f"Your verification code is {verify_code}. It will expire in 5 minutes."
-
-    # Create the email
-    msg = MIMEMultipart()
-    msg['From'] = smtp_user
-    msg['To'] = email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
-
-    # Send the email
-    try:
-        server = smtplib.SMTP(smtp_host, smtp_port)
-        server.starttls()  # Secure the connection
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, email, msg.as_string())
-        server.quit()
-        print("Verification email sent successfully")
-    except Exception as e:
-        print(f"Failed to send verification email: {e}")
