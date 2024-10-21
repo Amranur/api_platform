@@ -26,6 +26,7 @@ class User(Base):
 
     # Relationship with the Plan table
     plans = relationship("UserPlan", back_populates="user")
+    payments = relationship("Payment", back_populates="user")
 
 class Plan(Base):
     __tablename__ = "plans"
@@ -62,7 +63,7 @@ class Payment(Base):
     invoice_number = Column(String(255), nullable=False)  
     payment_method = Column(String(50), nullable=False) 
     status = Column(String(50), default="completed", nullable=False)
-    user = relationship("User")
+    user = relationship("User", back_populates="payments")
 
 class APIKey(Base):
     __tablename__ = "api_keys"

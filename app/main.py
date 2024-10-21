@@ -14,7 +14,7 @@ from .api.payment.stripe import router as stripe_router
 from sqlalchemy.orm import sessionmaker, Session, relationship
 
 # Initialize FastAPI
-app = FastAPI()
+app = FastAPI(debug=True)
 
 # Add CORS middleware
 app.add_middleware(
