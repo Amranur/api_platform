@@ -41,10 +41,10 @@ async def create_checkout_session(request: Request):
             "quantity": 1
         }]
 
-        # success_url = "https://searchapi.sobjanta.ai/deshboard?session_id={CHECKOUT_SESSION_ID}" 
-        # cancel_url=f'https://searchapi.sobjanta.ai/cancel'
-        success_url = "http://localhost:5173/deshboard?session_id={CHECKOUT_SESSION_ID}" 
-        cancel_url=f'http://localhost:5173/cancel'
+        success_url = "https://searchapi.sobjanta.ai/deshboard?session_id={CHECKOUT_SESSION_ID}" 
+        cancel_url=f'https://searchapi.sobjanta.ai/cancel'
+        #success_url = "http://localhost:5173/deshboard?session_id={CHECKOUT_SESSION_ID}" 
+        #cancel_url=f'http://localhost:5173/cancel'
      
 
 
