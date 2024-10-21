@@ -65,32 +65,32 @@ async def create_checkout_session(request: Request):
     except Exception as e:
         return JSONResponse({"error": "An unexpected error occurred."}, status_code=500)
 
-from fastapi import Query
+# from fastapi import Query
 
-@router.get("/success")
-async def success(session_id: str = Query(...)):
-    try:
-        # Retrieve the checkout session using the session_id
-        checkout_session = stripe.checkout.Session.retrieve(session_id)
+# @router.get("/success")
+# async def success(session_id: str = Query(...)):
+#     try:
+#         # Retrieve the checkout session using the session_id
+#         checkout_session = stripe.checkout.Session.retrieve(session_id)
 
-        # Check if the session has an invoice
-        invoice_id = checkout_session.get('invoice')
+#         # Check if the session has an invoice
+#         invoice_id = checkout_session.get('invoice')
 
-        if invoice_id:
-            # Retrieve the invoice details
-            invoice = stripe.Invoice.retrieve(invoice_id)
-            invoice_number = invoice.get('number', 'N/A')
+#         if invoice_id:
+#             # Retrieve the invoice details
+#             invoice = stripe.Invoice.retrieve(invoice_id)
+#             invoice_number = invoice.get('number', 'N/A')
 
-            # Return the invoice number as JSON
-            return JSONResponse({"message": "Payment successful", "invoice_number": invoice_number})
-        else:
-            return JSONResponse({"message": "No invoice associated with this session."})
+#             # Return the invoice number as JSON
+#             return JSONResponse({"message": "Payment successful", "invoice_number": invoice_number})
+#         else:
+#             return JSONResponse({"message": "No invoice associated with this session."})
 
-    except Exception as e:
-        return JSONResponse({"error": "Could not retrieve invoice information."}, status_code=500)
+#     except Exception as e:
+#         return JSONResponse({"error": "Could not retrieve invoice information."}, status_code=500)
 
 
 
-@router.get("/cancel")
-async def cancel(request: Request):
-    return  {"Failure": f"request: {dict(request)}"}
+# @router.get("/cancel")
+# async def cancel(request: Request):
+#     return  {"Failure": f"request: {dict(request)}"}
