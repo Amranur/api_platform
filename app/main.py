@@ -19,11 +19,16 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://searchapi.sobjanta.ai/","https://shopnobash.com/","http://localhost:5174/","*"],
+    allow_origins=[
+        "https://searchapi.sobjanta.ai",
+        "https://shopnobash.com",
+        "http://localhost:5174"
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
 )
+
 
 # Logging configuration
 logging.basicConfig(level=logging.INFO)
