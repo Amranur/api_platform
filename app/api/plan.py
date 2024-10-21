@@ -64,38 +64,33 @@ def update_plan(plan_id: int, plan_request: PlanCreateRequest,current_user: User
 
 
 @router.post("/change-user-plan/{plan_name}")
-def change_plan(plan_name: str, invoice_number: str, payment_method: str,payment_type: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # function implementation here
+def change_plan(plan_name: str, invoice_number: str, payment_method: str, payment_type: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     # Check if the user exists
     user = db.query(User).filter(User.id == current_user.id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Get the plan details
-    selected_plan = None
-    # Get the plan details
+    # Get the selected plan details
     selected_plan = db.query(Plan).filter(Plan.name == plan_name).first()
-
     if not selected_plan:
         raise HTTPException(status_code=400, detail="Invalid plan selected")
-    
+
     # Get the user's current plan
     current_user_plan = db.query(UserPlan).filter(UserPlan.user_id == current_user.id).first()
 
     if current_user_plan:
-        # Update the user's current plan
-        current_user_plan.id = selected_plan.id
+        # Update the user's current plan without modifying the id
         current_user_plan.plan_name = selected_plan.name
         current_user_plan.plan_buy_start_date = datetime.now()
-        current_user_plan.plan_expire_date = current_user_plan.plan_expire_date + timedelta(days=selected_plan.validity_days)
-        current_user_plan.remain_request = current_user_plan.remain_request + selected_plan.api_calls
-        current_user_plan.total_request = current_user_plan.total_request + selected_plan.api_calls
+        current_user_plan.plan_expire_date = datetime.now() + timedelta(days=selected_plan.validity_days)
+        current_user_plan.remain_request += selected_plan.api_calls
+        current_user_plan.total_request += selected_plan.api_calls
         db.commit()
     else:
         # Create a new user plan
         new_user_plan = UserPlan(
             user_id=current_user.id,
-            plan_id=selected_plan.id,
+            plan_name=selected_plan.name,
             plan_buy_start_date=datetime.now(),
             plan_expire_date=datetime.now() + timedelta(days=selected_plan.validity_days),
             remain_request=selected_plan.api_calls,
@@ -116,9 +111,6 @@ def change_plan(plan_name: str, invoice_number: str, payment_method: str,payment
     )
     db.add(new_payment)
     db.commit()
-
-    
-    
 
     return {"message": f"Plan changed to {selected_plan.name} successfully"}
 
