@@ -64,10 +64,10 @@ def update_plan(plan_id: int, plan_request: PlanCreateRequest,current_user: User
 
 
 @router.post("/change-user-plan/{plan_name}")
-def change_plan(plan_name: str, invoice_number: str, payment_method: str, payment_type: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    print("in Change user Token details:  ",current_user)
+def change_plan(plan_name: str, invoice_number: str, payment_method: str, payment_type: str, user_id: int, db: Session = Depends(get_db)):
+    print("in Change user Token details:  ",user_id)
     #  Check if the user exists
-    user = db.query(User).filter(User.id == current_user.id).first()
+    user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -77,7 +77,7 @@ def change_plan(plan_name: str, invoice_number: str, payment_method: str, paymen
         raise HTTPException(status_code=400, detail="Invalid plan selected")
 
     # Get the user's current plan
-    current_user_plan = db.query(UserPlan).filter(UserPlan.user_id == current_user.id).first()
+    current_user_plan = db.query(UserPlan).filter(UserPlan.user_id == user_id).first()
 
     if current_user_plan:
         # Update the user's current plan without modifying the id
@@ -90,7 +90,7 @@ def change_plan(plan_name: str, invoice_number: str, payment_method: str, paymen
     else:
         # Create a new user plan
         new_user_plan = UserPlan(
-            user_id=current_user.id,
+            user_id=user_id,
             plan_name=selected_plan.name,
             plan_buy_start_date=datetime.now(),
             plan_expire_date=datetime.now() + timedelta(days=selected_plan.validity_days),

@@ -91,7 +91,7 @@ def login_user(sign_in_data: SignInSchema ,
     user.login_ip = client_ip  # Save the login IP
     db.commit()
     access_token = create_access_token(data={"user_id": str(user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),db_session=db)
-    return {"access_token": access_token, "token_type": "Bearer"}
+    return {"access_token": access_token, "token_type": "Bearer","user_id":user.id}
 
 
 @router.post("/google-sign")
@@ -145,7 +145,7 @@ def register_customer(
     # Generate access token
     access_token = create_access_token(data={"user_id": str(user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES), db_session=db)
 
-    return {"message": "ok", "access_token": access_token}
+    return {"message": "ok", "access_token": access_token,"user_id":user.id}
 
 # Register as Admin
 @router.post("/register-admin")
@@ -190,7 +190,7 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
         raise HTTPException(status_code=400, detail="Email not verified. A new verification code has been sent to your email.")
     
     access_token = create_access_token(data={"user_id": str(user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),db_session=db)
-    return {"access_token": access_token, "token_type": "Bearer"}
+    return {"access_token": access_token, "token_type": "Bearer","user_id":user.id}
 
 
 
@@ -264,7 +264,7 @@ def verify_email(data: VerifyEmailRequest, background_tasks: BackgroundTasks, db
     db.commit()
     access_token = create_access_token(data={"user_id": str(user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),db_session=db)
 
-    return {"message": "Email verified successfully", "access_token": access_token}
+    return {"message": "Email verified successfully", "access_token": access_token,"user_id":user.id}
 
 
 class ForgotPasswordRequest(BaseModel):
