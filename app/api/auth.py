@@ -106,7 +106,7 @@ def register_customer(
         # Generate access token
         access_token = create_access_token(data={"user_id": str(existing_user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES), db_session=db)
 
-        return {"message": "ok", "access_token": access_token}
+        return {"message": "ok", "access_token": access_token, "user_id": existing_user.id}
     # Get client IP address
     client_ip = request.client.host
    
@@ -145,7 +145,7 @@ def register_customer(
     # Generate access token
     access_token = create_access_token(data={"user_id": str(user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES), db_session=db)
 
-    return {"message": "ok", "access_token": access_token,"user_id":existing_user.id}
+    return {"message": "ok", "access_token": access_token,"user_id":user.id}
 
 # Register as Admin
 @router.post("/register-admin")
