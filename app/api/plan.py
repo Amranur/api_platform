@@ -65,7 +65,8 @@ def update_plan(plan_id: int, plan_request: PlanCreateRequest,current_user: User
 
 @router.post("/change-user-plan/{plan_name}")
 def change_plan(plan_name: str, invoice_number: str, payment_method: str, payment_type: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # Check if the user exists
+    print("in Change user Token details:  ",current_user)
+    #  Check if the user exists
     user = db.query(User).filter(User.id == current_user.id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -118,6 +119,7 @@ def change_plan(plan_name: str, invoice_number: str, payment_method: str, paymen
 @role_required(["admin"])
 def change_plan(plan_name: str, user_id: int,current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     # Check if the user exists
+    print("in ",current_user)
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
