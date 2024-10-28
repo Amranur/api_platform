@@ -34,9 +34,15 @@ app.add_middleware(
 logging.basicConfig(level=logging.INFO)
 
 # Create the database tables
-logging.info("Creating all tables...")
-Base.metadata.create_all(bind=engine)
-logging.info("Tables created!")
+# logging.info("Creating all tables...")
+# Base.metadata.create_all(bind=engine)
+# logging.info("Tables created!")
+try:
+    logging.info("Creating all tables...")
+    Base.metadata.create_all(bind=engine)
+    logging.info("Tables created successfully!")
+except Exception as e:
+    logging.error(f"Error creating tables: {e}")
 
 # Include the routers
 app.include_router(main_router)
