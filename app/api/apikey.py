@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.models import APIKey, User
 from app.database import get_db
-from app.utills.authUtils import get_current_user
+from app.utills.auth import get_current_user
 
 
 

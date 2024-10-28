@@ -8,7 +8,7 @@ from typing import Optional, List
 from app.database import get_db
 from app.models import API_Documentation, User
 from app.schemas import APIDocumentationCreate, APIDocumentationUpdate
-from app.utills.authUtils import get_current_user
+from app.utills.auth import get_current_user
 
 
 

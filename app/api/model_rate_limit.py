@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
-from app.utills.authUtils import get_current_user
+from app.utills.auth import get_current_user
 from ..database import get_db
 from ..models import ModelRateLimit, User
 from pydantic import BaseModel
@@ -18,6 +18,8 @@ class ModelRateLimitCreate(BaseModel):
     tokens_per_day: int = None
     audio_seconds_per_hour: int = None
     audio_seconds_per_day: int = None
+    class Config:
+        protected_namespaces = ()
 
 class ModelRateLimitResponse(ModelRateLimitCreate):
     id: int

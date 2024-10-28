@@ -1,6 +1,6 @@
 import string
 from typing import List, Optional
-from app.utills.authUtils import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, generate_code_and_expiry, get_current_user, get_password_hash, role_required, verify_password
+from app.utills.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, generate_code_and_expiry, get_current_user, get_password_hash, role_required, verify_password
 from app.utills.email import send_email
 from ..models import  Payment, Plan,  User, UserPlan
 from app.database import get_db

@@ -6,7 +6,7 @@ from app.models import APIKey, RequestLog, User
 from app.database import get_db
 from sqlalchemy.orm import sessionmaker, Session, relationship
 from datetime import datetime, timedelta
-from app.utills.authUtils import get_current_user
+from app.utills.auth import get_current_user
 
 router = APIRouter()
 @router.get("/request-logs-all")

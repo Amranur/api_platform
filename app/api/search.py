@@ -1,3 +1,4 @@
+import json
 from groq import Groq
 import httpx
 import logging
@@ -31,7 +32,7 @@ client = Groq(api_key=api_key)
 #SEARXNG_API_URL = "https://searsobjanta-gkd0dyewhyaug0as.eastus-01.azurewebsites.net/search"
 SEARXNG_API_URL = "http://36.50.40.36:8888/search"
 
-@router.websocket("/playground")
+@router.websocket("/playground-summary")
 async def websocket_search(websocket: WebSocket, db: Session = Depends(get_db)):
     await websocket.accept()
 
@@ -173,6 +174,49 @@ def summarize_content(content: str,query: str,) -> str:
         print(f"An error occurred: {e}")
         return ''
 
+def summarize_content_ollama(content: str, query: str) -> str:
+    try:
+        # Construct messages in the required format
+        messages = [
+            {
+                "role": "system",
+                "content": "Please note that the current date and time is: {get_current_date_and_time}. I will provide a summary and analysis of the main points as an expert."
+            },
+            {
+                "role": "user",
+                "content": f"Please summarize and analyze the main points of the following content retrieved from various URLs and search engines for the query: {query}. The content is: {content}"
+            }
+        ]
+        
+        # Call LLM API with the constructed messages
+        return call_llm_api(messages)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return ''
+
+def call_llm_api(messages):
+    url = "http://36.50.40.36:11434/api/chat"
+    data = {
+        "model": "llama3.2:latest",
+        "messages": messages,
+        "stream": True 
+    }
+
+    response = requests.post(url, json=data, stream=True)
+    if response.status_code == 200:
+        output = ""
+        for line in response.iter_lines():
+            if line:
+                try:
+                    json_line = json.loads(line.decode('utf-8'))
+                    if 'message' in json_line and 'content' in json_line['message']:
+                        output += json_line['message']['content'] + " "
+                except json.JSONDecodeError:
+                    print("Failed to decode JSON:", line)
+        return output.strip()
+    else:
+        print("Error:", response.status_code, response.text)
+        return None
 
 
 # Search function using the API key
@@ -228,7 +272,7 @@ async def searchsummary( q: str = Query(..., description="The search query"),
 
             # Combine all cleaned content and summarize it
             combined_content = "\n\n---\n\n".join(all_cleaned_content)
-            summary = summarize_content(combined_content,q)
+            summary = summarize_content_ollama(combined_content,q)
             return {"summary": summary}  # Return the summarized content
 
         else:

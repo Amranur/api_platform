@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .models import Plan, User# Import your models
+from .models import Plan # Import your models
 import logging
 from .database import Base, engine, get_db  # Import Base and engine from database
 from .api.docs import router as docs_router

@@ -20,8 +20,7 @@ class APIDocumentation(BaseModel):
     content: str
     example_code: dict
 
-    class Config:
-        orm_mode = True
+    
 
 class UserCreateRequest(BaseModel):
     name: str
