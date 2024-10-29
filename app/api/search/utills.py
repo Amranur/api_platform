@@ -58,45 +58,28 @@ async def call_embedding_api(texts):
                     
     return embeddings
 
+async def stream_chat_ollama(query: str, model: str):
+    try:
+        # Construct messages in the required format
+        messages = [
+            {
+                "role": "system",
+                "content": "Please note that the current date and time is: {get_current_date_and_time}. I will provide the best answer as an expert."
+            },
+            {
+                "role": "user",
+                "content": f"Please give the best answer for the chat query: {query}."
+            }
+        ]
+        
+        # Call LLM API with the constructed messages
+        async for response in call_llm_api(messages):
+            yield response
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        yield f"Error: {e}"
 
 
-# async def stream_summarize_embed(content_list, query):
-#     try:
-#         # Get embeddings for each content section
-#         embeddings = await call_embedding_api(content_list)
-        
-#         # Construct a combined prompt using embeddings and original text content
-#         embedded_content = "\n\n".join(
-#             f"Content section {i+1} with embedding {embeddings[i]}:\n{content}"
-#             for i, content in enumerate(content_list)
-#         )
-        
-#         # Messages for summarization
-#         messages = [
-#             {
-#                 "role": "system",
-#                 "content": (
-#                     "Please note that the current date and time is: {get_current_date_and_time}. "
-#                     "I will provide a summary and analysis of the main points as an expert. "
-#                     "The content below includes embedded representations for enhanced relevance."
-#                 )
-#             },
-#             {
-#                 "role": "user",
-#                 "content": (
-#                     f"Please summarize and analyze the main points of the following content, with "
-#                     f"embeddings for context. The query was: {query}. The embedded content is: {embedded_content}"
-#                 )
-#             }
-#         ]
-        
-#         # Stream responses from LLM API
-#         async for response in call_llm_api(messages):
-#             yield response
-
-#     except Exception as e:
-#         print(f"An error occurred: {e}")
-#         yield f"Error: {e}"
 
 async def stream_summarize_embed(content_list, embeddings, query):
     try:
@@ -105,6 +88,7 @@ async def stream_summarize_embed(content_list, embeddings, query):
             f"Content section {i+1} with embedding {embeddings[i]}:\n{content}"
             for i, content in enumerate(content_list)
         )
+        print("come")
 
         # Construct messages for summarization
         messages = [
@@ -120,7 +104,7 @@ async def stream_summarize_embed(content_list, embeddings, query):
                 "role": "user",
                 "content": (
                     f"Please summarize and analyze the main points of the following content, with "
-                    f"embeddings for context. The query was: {query}. The embedded content is: {embedded_content}"
+                    f"embeddings for context. The query was: {query}. The  content is: {content_list}"
                 )
             }
         ]
@@ -160,27 +144,6 @@ async def stream_summarize_without_embed(content: str, query: str):
         yield f"Error: {e}"
 
 
-
-async def chat_ollama(query: str, model: str):
-    try:
-        # Construct messages in the required format
-        messages = [
-            {
-                "role": "system",
-                "content": "Please note that the current date and time is: {get_current_date_and_time}. I will provide the best answer as an expert."
-            },
-            {
-                "role": "user",
-                "content": f"Please give the best answer for the chat query: {query}."
-            }
-        ]
-        
-        # Call LLM API with the constructed messages
-        async for response in call_llm_api(messages):
-            yield response
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        yield f"Error: {e}"
 
 
 

@@ -20,7 +20,7 @@ from sqlalchemy.orm import sessionmaker, Session, relationship
 from langchain_community.utilities import SearxSearchWrapper
 from langchain_community.document_loaders import WebBaseLoader
 
-from app.api.search.utills import call_embedding_api, chat_ollama, clean_whitespace, stream_summarize_embed, stream_summarize_without_embed
+from app.api.search.utills import call_embedding_api, stream_chat_ollama, clean_whitespace, stream_summarize_embed, stream_summarize_without_embed
 from app.database import get_db
 from app.models import APIKey, RequestLog, User, UserPlan
 
@@ -75,7 +75,7 @@ async def websocket_search(websocket: WebSocket, db: Session = Depends(get_db)):
 
         # Perform the search or summarization
         # This example assumes you want to stream content from a summarization model
-        summary_generator = chat_ollama(query, model)
+        summary_generator = stream_chat_ollama(query, model)
         print("WebSocket call ollama.")
         async for partial_summary in summary_generator:
             print("WebSocket partial_summary: ", partial_summary)
@@ -205,7 +205,7 @@ async def searchsummary1(
             await websocket.close()
 
 
-@router.get("/playground-chat")
+@router.get("/chat")
 async def pg_chat(query: str, api_key: str, model: str = "llama-3.1-70b-versatile", db: Session = Depends(get_db)):
     # # Check if API key exists and is active
     # db_key = db.query(APIKey).filter(APIKey.key == api_key, APIKey.status == True).first()
@@ -236,7 +236,7 @@ async def pg_chat(query: str, api_key: str, model: str = "llama-3.1-70b-versatil
     try:
         # Call the chat_ollama function
         responses = []
-        async for response in chat_ollama(query, model):
+        async for response in stream_chat_ollama(query, model):
             responses.append(response)
 
         # Combine all responses into a single output
