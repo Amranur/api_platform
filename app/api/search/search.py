@@ -7,6 +7,7 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query, WebSocket, Depends, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pydantic import BaseModel
 from typing import List, Dict
 import re
@@ -19,7 +20,7 @@ from sqlalchemy.orm import sessionmaker, Session, relationship
 from langchain_community.utilities import SearxSearchWrapper
 from langchain_community.document_loaders import WebBaseLoader
 
-from app.api.search.utills import chat_ollama, clean_whitespace, stream_summarize_without_embed, summarize_without_embed
+from app.api.search.utills import call_embedding_api, chat_ollama, clean_whitespace, stream_summarize_embed, stream_summarize_without_embed
 from app.database import get_db
 from app.models import APIKey, RequestLog, User, UserPlan
 
@@ -137,7 +138,7 @@ async def searchsummary1(
             db.commit()
 
         #Log the Request
-        log = RequestLog(api_key=api_key, query=q, model_id=None)
+        log = RequestLog(api_key=api_key, query=query, model_id=None)
         db.add(log)
         db.commit()
         
@@ -205,7 +206,7 @@ async def searchsummary1(
 
 
 @router.get("/playground-chat")
-def pg_chat(query: str, api_key: str, model: str = "llama-3.1-70b-versatile", db: Session = Depends(get_db)):
+async def pg_chat(query: str, api_key: str, model: str = "llama-3.1-70b-versatile", db: Session = Depends(get_db)):
     # # Check if API key exists and is active
     # db_key = db.query(APIKey).filter(APIKey.key == api_key, APIKey.status == True).first()
     # if not db_key:
@@ -231,9 +232,21 @@ def pg_chat(query: str, api_key: str, model: str = "llama-3.1-70b-versatile", db
     # db.commit()
 
     
-    chat_answer = chat_ollama(query,model)
+    #chat_answer = chat_ollama(query,model)
+    try:
+        # Call the chat_ollama function
+        responses = []
+        async for response in chat_ollama(query, model):
+            responses.append(response)
+
+        # Combine all responses into a single output
+        chat_answer = " ".join(responses)  # Adjust based on how you want to format the output
+        return {"answer": chat_answer}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
     
-    return {"answer": chat_answer}
+  
 
 # Search function using the API key
 @router.get("/search-summary")
@@ -269,18 +282,24 @@ async def searchsummary1(
                 loader = WebBaseLoader(url)
                 try:
                     docs = loader.load()
-                    page_content = docs[0].page_content
-                    cleaned_content = clean_whitespace(page_content)
-                    all_cleaned_content.append(cleaned_content)
+                    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+                    splits = text_splitter.split_documents(docs)
+                    all_cleaned_content.extend(split.page_content for split in splits)  # Gather only content
                 except httpx.RequestError as e:
                     logging.error(f"Request Error while fetching {url}: {e}")
                     continue
                 except Exception as e:
                     logging.error(f"Error while processing {url}: {e}")
                     continue
+            # Step 1: Embed all collected content in batches
+            embeddings = await call_embedding_api(all_cleaned_content)
 
-            combined_content = "\n\n---\n\n".join(all_cleaned_content)
-            summary = await summarize_without_embed(combined_content, q)
+            summary = []
+            async for part in stream_summarize_embed(all_cleaned_content, embeddings, q):
+                summary.append(part)
+            
+            # Combine all parts of the summary
+            summary = " ".join(summary)
             return {"summary": summary}
 
         else:
