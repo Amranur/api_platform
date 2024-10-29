@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Summary</title>
+    <style>
+        #chatBox {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 100%;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="queryInput" placeholder="Enter your query">
+    <input type="text" id="apiKeyInput" placeholder="Enter API key">
+    <button onclick="sendQuery()">Send</button>
+    <div id="chatBox"></div>
+
+    <script>
+        let websocket;
+
+        function sendQuery() {
+            const queryInput = document.getElementById('queryInput').value;
+            const apiKeyInput = document.getElementById('apiKeyInput').value;
+            const chatBox = document.getElementById('chatBox');
+
+            if (!queryInput || !apiKeyInput) {
+                alert("Please enter both query and API key.");
+                return;
+            }
+
+            if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+                websocket = new WebSocket("ws://localhost:8000/ws/chat");
+
+                websocket.onopen = () => {
+                    console.log("WebSocket connection established.");
+                    websocket.send(JSON.stringify({ query: queryInput, api_key: apiKeyInput }));
+                };
+
+                websocket.onmessage = (event) => {
+                    const response = JSON.parse(event.data);
+
+                    if (response.partial_summary) {
+                        // Append the partial summary text to the chat box
+                        chatBox.innerHTML += response.partial_summary + " ";
+                    } else if (response.message) {
+                        chatBox.innerHTML += `<p><em>${response.message}</em></p>`;
+                    } else if (response.error) {
+                        chatBox.innerHTML += `<p class="error"><strong>Error:</strong> ${response.error}</p>`;
+                    } else if (response.summary_complete) {
+                        chatBox.innerHTML += `<p><strong>Summary complete:</strong> ${response.summary}</p>`;
+                    }
+
+                    chatBox.scrollTop = chatBox.scrollHeight;  // Keep the chat scrolled to the bottom
+                };
+
+                websocket.onerror = (error) => {
+                    console.error("WebSocket error:", error);
+                };
+
+                websocket.onclose = () => {
+                    console.log("WebSocket connection closed.");
+                };
+            } else {
+                websocket.send(JSON.stringify({ query: queryInput, api_key: apiKeyInput }));
+            }
+        }
+    </script>
+</body>
+</html>

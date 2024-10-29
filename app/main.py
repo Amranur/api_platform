@@ -4,7 +4,7 @@ from .models import Plan # Import your models
 import logging
 from .database import Base, engine, get_db  # Import Base and engine from database
 from .api.docs import router as docs_router
-from .api.search import router as search_router
+from .api.search.search import router as search_router
 from .api.apikey import router as apikey_router
 from .api.requestLog import router as requestLog_router
 from .api.auth import router as main_router

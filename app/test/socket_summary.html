@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Summary WebSocket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #summaryOutput {
+            margin-top: 20px;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Search Summary</h1>
+        <form id="searchForm">
+            <input type="text" id="query" placeholder="Enter your search query" required>
+            <input type="text" id="categories" placeholder="Categories (optional)">
+            <input type="text" id="engines" placeholder="Engines (optional)">
+            <input type="text" id="api_key" placeholder="API Key" required>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="summaryOutput">
+            <h2>Summary Output</h2>
+            <pre id="output"></pre>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('searchForm');
+        const output = document.getElementById('output');
+        let socket;
+
+        const connectWebSocket = () => {
+            // Replace with your WebSocket server URL
+            const websocketUrl = 'ws://localhost:8000/ws/search-summary'; 
+
+            socket = new WebSocket(websocketUrl);
+
+            socket.onopen = () => {
+                console.log('WebSocket connection established.');
+            };
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.partial_summary) {
+                    output.textContent += data.partial_summary + '\n';
+                } else if (data.message) {
+                    output.textContent += '\n' + data.message;
+                } else if (data.error) {
+                    output.textContent += '\nError: ' + data.error;
+                }
+            };
+
+            socket.onclose = () => {
+                console.log('WebSocket connection closed.');
+                // Optionally reconnect
+                setTimeout(connectWebSocket, 5000); // Reconnect after 5 seconds
+            };
+        };
+
+        form.onsubmit = (event) => {
+            event.preventDefault();
+
+            if (socket.readyState === WebSocket.OPEN) {
+                const query = document.getElementById('query').value;
+                const categories = document.getElementById('categories').value || null; // Optional
+                const engines = document.getElementById('engines').value || null; // Optional
+                const api_key = document.getElementById('api_key').value;
+
+                const requestData = {
+                    api_key,
+                    model: "llama-3.1-70b-versatile", // Change if needed
+                };
+
+                // Send the data to the WebSocket server
+                socket.send(JSON.stringify({ query, categories, engines, ...requestData }));
+                output.textContent = 'Waiting for summary...\n'; // Clear output and show waiting message
+            } else {
+                output.textContent += '\nError: WebSocket is not connected.';
+            }
+        };
+
+        // Initialize WebSocket connection
+        connectWebSocket();
+    </script>
+</body>
+</html>
