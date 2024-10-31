@@ -20,7 +20,7 @@ from sqlalchemy.orm import sessionmaker, Session, relationship
 from langchain_community.utilities import SearxSearchWrapper
 from langchain_community.document_loaders import WebBaseLoader
 
-from app.api.search.utills import call_embedding_api, stream_chat_ollama, clean_whitespace, stream_summarize_embed, stream_summarize_without_embed
+from app.api.search.utills import call_embedding_api, stream_chat_ollama, clean_whitespace, stream_summarize, stream_summarize_embed
 from app.database import get_db
 from app.models import APIKey, RequestLog, User, UserPlan
 
@@ -183,7 +183,7 @@ async def searchsummary1(
 
             # Combine all cleaned content and summarize it
             combined_content = "\n\n---\n\n".join(all_cleaned_content)
-            summary_generator = stream_summarize_without_embed(combined_content,query)
+            summary_generator = stream_summarize(combined_content,query)
             print("WebSocket call ollama.")
             async for partial_summary in summary_generator:
                 print("WebSocket partial_summary: ", partial_summary)

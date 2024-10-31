@@ -122,7 +122,7 @@ async def stream_summarize_embed(content_list, embeddings, query):
         yield f"Error: {e}"
 
 
-async def stream_summarize_without_embed(content: str, query: str):
+async def stream_summarize(content: str, query: str):
     try:
         # Construct messages in the required format
         messages = [
