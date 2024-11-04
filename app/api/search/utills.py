@@ -64,7 +64,7 @@ async def stream_chat_ollama(query: str, model: str):
         messages = [
             {
                 "role": "system",
-                "content": "Please note that the current date and time is: {get_current_date_and_time}. I will provide the best answer as an expert."
+                "content": f"Please note that the current date and time is: {get_current_date_and_time}. I will provide the best answer as an expert."
             },
             {
                 "role": "user",
@@ -128,11 +128,11 @@ async def stream_summarize(content: str, query: str):
         messages = [
             {
                 "role": "system",
-                "content": "Please note that the current date and time is: {get_current_date_and_time}. I will provide a summary and analysis of the main points as an expert."
+                "content": f"Please note that the current date and time is: {get_current_date_and_time}. I am Sobjanta Search. I will provide a summary and analysis of the main points as an expert."
             },
             {
                 "role": "user",
-                "content": f"Please summarize and analyze the main points of the following content retrieved from various URLs and search engines for the query: {query}. The content is: {content}"
+                "content": f"Note that the current date and time is: {get_current_date_and_time}.Please summarize and analyze the main points of the following content retrieved from various URLs and search engines for the query: {query}.And The content is: {content}."
             }
         ]
         
@@ -142,6 +142,12 @@ async def stream_summarize(content: str, query: str):
 
     except Exception as e:
         yield f"Error: {e}"
+
+
+
+
+
+
 
 
 

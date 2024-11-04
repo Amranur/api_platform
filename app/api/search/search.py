@@ -20,7 +20,7 @@ from sqlalchemy.orm import sessionmaker, Session, relationship
 from langchain_community.utilities import SearxSearchWrapper
 from langchain_community.document_loaders import WebBaseLoader
 
-from app.api.search.utills import call_embedding_api, stream_chat_ollama, clean_whitespace, stream_summarize, stream_summarize_embed
+from app.api.search.utills import call_embedding_api, stream_chat_ollama, clean_whitespace, stream_summarize, stream_summarize_embed 
 from app.database import get_db
 from app.models import APIKey, RequestLog, User, UserPlan
 
@@ -207,7 +207,7 @@ async def searchsummary1(
 
 @router.get("/chat")
 async def pg_chat(query: str, api_key: str, model: str = "llama-3.1-70b-versatile", db: Session = Depends(get_db)):
-    # # Check if API key exists and is active
+    
     # db_key = db.query(APIKey).filter(APIKey.key == api_key, APIKey.status == True).first()
     # if not db_key:
     #     raise HTTPException(status_code=403, detail="Invalid or disabled API key")
@@ -254,7 +254,6 @@ async def searchsummary1(
     q: str = Query(..., description="The search query"),
     categories: str = Query("general", description="The categories to filter by"),
     engines: str = Query("all", description="The engines to use"),
-    format: str = Query("json", description="The response format")
 ):
     try:
         # Increase timeout to 100 seconds
@@ -263,7 +262,7 @@ async def searchsummary1(
             "q": q,
             "categories": categories if categories else "general",
             "engines": engines if engines else "all",
-            "format": format if format else "json",
+            "format":  "json",
         }
         # Making an asynchronous GET request to SearxNG API
         async with httpx.AsyncClient(timeout=timeout) as client:
