@@ -95,7 +95,7 @@ async def stream_summarize_embed(content_list, embeddings, query):
             {
                 "role": "system",
                 "content": (
-                    "Please note that the current date and time is: {get_current_date_and_time}. "
+                    f"Please note that the current date and time is: {get_current_date_and_time}. "
                     "I will provide a summary and analysis of the main points as an expert. "
                     "The content below includes embedded representations for enhanced relevance."
                 )
