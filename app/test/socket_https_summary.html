@@ -44,9 +44,9 @@
             if (!api_key) {
                 alert('Please enter an API key');
                 return;
-            }
-
-            const ws = new WebSocket(`wss://shopnobash.com/api/ws/search-summary`);
+            } 
+//ws://36.50.40.36:9000/ws/search-summary
+            const ws = new WebSocket(`wss://shopnobash.com//ws/api/ws/search-summary`);
 
             ws.onopen = () => {
                 console.log('WebSocket connection established');
@@ -59,8 +59,8 @@
                 output.innerHTML += `<p>${JSON.stringify(data)}</p>`;
             };
 
-            ws.onclose = () => {
-                console.log('WebSocket connection closed');
+            ws.onclose = (event) => {
+                console.log('WebSocket connection closed:', event);
             };
 
             ws.onerror = (error) => {
