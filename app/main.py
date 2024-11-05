@@ -22,7 +22,8 @@ app.add_middleware(
     allow_origins=[
         "https://searchapi.sobjanta.ai",
         "https://shopnobash.com",
-        "http://localhost:5173"
+        "http://localhost:5173",
+        "http://localhost:5500"
     ],
     allow_credentials=True,
     allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
