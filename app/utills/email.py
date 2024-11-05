@@ -7,7 +7,7 @@ def send_email(email: str,  subject: str, body: str):
     smtp_host = "mail.sobjanta.ai"
     smtp_port = 587  # SSL/TLS port
     smtp_user = "sobjanta@sobjanta.ai"
-    smtp_password = "TechKnowGram$5"
+    smtp_password = "Tkgl@432!"
 
     # Create the email
     msg = MIMEMultipart()
@@ -35,7 +35,7 @@ def send_verification_email(email: str, verify_code: str):
     smtp_host = "mail.sobjanta.ai"
     smtp_port = 587  # SSL/TLS port
     smtp_user = "sobjanta@sobjanta.ai"
-    smtp_password = "TechKnowGram$5"
+    smtp_password = "Tkgl@432!"
     print("come12")
     # Email content
     subject = "Your  Verification Code"
