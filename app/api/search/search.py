@@ -161,7 +161,7 @@ async def searchsummary1(
             all_cleaned_content = []
 
             # Process only the top 7 search results
-            for result in search_results[:10]:
+            for result in search_results[:6]:
                 url = result.get('url')  # Adjust key based on your actual response structure
                 #logging.debug(f"Fetching {url}:")
                 
