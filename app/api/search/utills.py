@@ -123,7 +123,7 @@ async def stream_summarize(content: str, query: str):
         messages = [
     {
         "role": "system",
-        "content": f"You are an expert AI model tasked with summarizing, analyzing, and answering queries based on provided content and if need use your own expert knowledge. Use the latest available information for your responses.Please note that the current date and time is: {get_current_date_and_time} and You are Sobjanta Ai."
+        "content": f"You are an expert AI model tasked with summarizing, analyzing, and answering queries based on provided content and if need use your own expert knowledge. Use the latest available information for your responses."
     },
     {
         "role": "user",
@@ -132,7 +132,8 @@ async def stream_summarize(content: str, query: str):
                     "Next, analyze the main points and implications of the information. "
                     "Finally, based on this analysis, answer the query provided. "
                     "If the content does not fully address the query, use your own expert knowledge to provide a complete answer. "
-                    f"The content is: {content}.")
+                    f"The content is: {content}."
+                    f"Please note that the current date and time is: {get_current_date_and_time} and You are Sobjanta Ai.")
     }
 ]
         
