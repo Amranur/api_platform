@@ -81,14 +81,9 @@ async def stream_chat_ollama(query: str, model: str):
 
 
 
-async def stream_summarize_embed(content_list, embeddings, query):
+async def summarize(content_list, query):
     try:
         # Combine content and embeddings
-        embedded_content = "\n\n".join(
-            f"Content section {i+1} with embedding {embeddings[i]}:\n{content}"
-            for i, content in enumerate(content_list)
-        )
-        print("come")
 
         # Construct messages for summarization
         messages = [
