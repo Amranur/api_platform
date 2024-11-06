@@ -126,15 +126,20 @@ async def stream_summarize(content: str, query: str):
     try:
         # Construct messages in the required format
         messages = [
-            {
-                "role": "system",
-                "content": f"Please note that the current date and time is: {get_current_date_and_time}. I am Sobjanta Search. I will provide a summary and analysis of the main points as an expert."
-            },
-            {
-                "role": "user",
-                "content": f"Note that the current date and time is: {get_current_date_and_time}.Please summarize and analyze the main points of the following content retrieved from various URLs and search engines for the query: {query}.And The content is: {content}."
-            }
-        ]
+    {
+        "role": "system",
+        "content": "You are an expert AI model tasked with summarizing, analyzing, and answering queries based on provided content and if need use your own expert knowledge. Use the latest available information for your responses."
+    },
+    {
+        "role": "user",
+        "content": (f"The current task is to process the following information retrieved for the query: '{query}'. "
+                    "First, provide a concise summary of the content. "
+                    "Next, analyze the main points and implications of the information. "
+                    "Finally, based on this analysis, answer the query provided. "
+                    "If the content does not fully address the query, use your own expert knowledge to provide a complete answer. "
+                    f"The content is: {content}.")
+    }
+]
         
         # Call LLM API with the constructed messages and stream responses
         async for response in call_llm_api(messages):
