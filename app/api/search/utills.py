@@ -131,8 +131,8 @@ async def stream_summarize(content: str, query: str):
                     "First, provide a concise summary of the content. "
                     "Next, analyze the main points and implications of the information. "
                     "Finally, based on this analysis, answer the query provided. "
-                    "If the content does not fully address the query, use your own expert knowledge to provide a complete answer. "
                     f"The content is: {content}."
+                    "If the content does not fully address the query, use your own expert knowledge with merge to provide a complete answer."
                     f"Please note that the current date and time is: {get_current_date_and_time} and You are Sobjanta Ai.")
     }
 ]
