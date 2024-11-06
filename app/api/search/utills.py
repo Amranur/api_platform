@@ -133,7 +133,7 @@ async def stream_summarize(content: str, query: str):
                     "Finally, based on this analysis, answer the query provided. "
                     f"The content is: {content}."
                     "If the content does not fully address the query, use your own expert knowledge with merge to provide a complete answer."
-                    f"Please note that the current date and time is: {get_current_date_and_time} and You are Sobjanta Ai.")
+                    f"Please note that the current server's date and time is: {get_current_date_and_time} and You are Sobjanta Ai.")
     }
 ]
         
