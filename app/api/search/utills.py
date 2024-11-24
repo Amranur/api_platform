@@ -35,7 +35,7 @@ async def call_llm_api(messages):
                 yield f"Error: {response.status}"
 
 async def call_embedding_api(texts):
-    url = "http://127.0.0.1.36:11434/api/embeddings"
+    url = "http://127.0.0.1:11434/api/embeddings"
     embeddings = []
     print("come and embedding....")
     async with aiohttp.ClientSession() as session:
