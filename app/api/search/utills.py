@@ -81,41 +81,6 @@ async def stream_chat_ollama(query: str, model: str):
 
 
 
-async def summarize(content_list, query):
-    try:
-        # Combine content and embeddings
-
-        # Construct messages for summarization
-        messages = [
-            {
-                "role": "system",
-                "content": (
-                    f"Please note that the current date and time is: {get_current_date_and_time}. "
-                    "I will provide a summary and analysis of the main points as an expert. "
-                    "The content below includes embedded representations for enhanced relevance."
-                )
-            },
-            {
-                "role": "user",
-                "content": (
-                    f"Please summarize and analyze the main points of the following content, with "
-                    f"embeddings for context. The query was: {query}. The  content is: {content_list}"
-                )
-            }
-        ]
-
-        # Stream responses from LLM API
-        async for response in call_llm_api(messages):
-            yield response
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        yield f"Error: {e}"
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        yield f"Error: {e}"
-
 
 async def stream_summarize(content: str, query: str):
     try:

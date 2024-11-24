@@ -20,7 +20,7 @@ from sqlalchemy.orm import sessionmaker, Session, relationship
 from langchain_community.utilities import SearxSearchWrapper
 from langchain_community.document_loaders import WebBaseLoader
 
-from app.api.search.utills import call_embedding_api, stream_chat_ollama, clean_whitespace, stream_summarize, summarize 
+from app.api.search.utills import call_embedding_api, stream_chat_ollama, clean_whitespace, stream_summarize 
 from app.database import get_db
 from app.models import APIKey, RequestLog, User, UserPlan
 
@@ -294,7 +294,7 @@ async def searchsummary1(
             embeddings = await call_embedding_api(all_cleaned_content)
 
             summary = []
-            async for part in summarize(all_cleaned_content, q):
+            async for part in stream_summarize(all_cleaned_content, q):
                 summary.append(part)
             
             # Combine all parts of the summary
@@ -366,7 +366,7 @@ async def searchsummary2(
                 title = item["title"]
                 url = item["url"]
                 content = item["content"]
-                summary =  summarize(content, q)
+                summary =  stream_summarize(content, q)
                 summaries.append({"url": url,"title": title, "summary": summary})
 
             return {"summaries": summaries}  # Return the summarized content
