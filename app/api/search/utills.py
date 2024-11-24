@@ -34,6 +34,8 @@ async def call_llm_api(messages):
                 print("Error:", response.status, await response.text())
                 yield f"Error: {response.status}"
 
+
+
 async def call_embedding_api(texts):
     url = "http://36.50.40.36:11435/api/embeddings"
     embeddings = []
@@ -58,6 +60,9 @@ async def call_embedding_api(texts):
                     
     return embeddings
 
+
+
+
 async def stream_chat_ollama(query: str, model: str):
     try:
         # Construct messages in the required format
@@ -78,8 +83,6 @@ async def stream_chat_ollama(query: str, model: str):
     except Exception as e:
         print(f"An error occurred: {e}")
         yield f"Error: {e}"
-
-
 
 
 async def stream_summarize(content: str, query: str):

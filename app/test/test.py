@@ -17,7 +17,7 @@ payload = {
         {"role": "system", "content": "You are an assistant designed to provide helpful responses.Always try to generate full code for the given image"},
         {
             "role": "user",
-            "content": "This image convert into a react web app full code",
+            "content": " continue where you stop to full the code",
             "images": [encoded_image_data]
         }
     ]
