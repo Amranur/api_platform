@@ -16,9 +16,13 @@ templates = Jinja2Templates(directory="app/api/payment/templates")
 
 router = APIRouter()
 
-@router.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "publishable_key": STRIPE_PUBLISHABLE_KEY})
+@router.get("/")
+async def home():
+    return "working..."
+
+# @router.get("/", response_class=HTMLResponse)
+# async def home(request: Request):
+#     return templates.TemplateResponse("index.html", {"request": request, "publishable_key": STRIPE_PUBLISHABLE_KEY})
 
 @router.post("/create-checkout-session-stripe")
 async def create_checkout_session(request: Request):
