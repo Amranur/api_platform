@@ -12,7 +12,7 @@ def get_current_date_and_time():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 async def call_llm_api(messages):
-    url = "http://127.0.0.1:11434/api/chat"
+    url = "http://36.50.40.36:11435/api/chat"
     data = {
         "model": "llama3.2:latest",
         "messages": messages,
@@ -35,7 +35,7 @@ async def call_llm_api(messages):
                 yield f"Error: {response.status}"
 
 async def call_embedding_api(texts):
-    url = "http://127.0.0.1:11434/api/embeddings"
+    url = "http://36.50.40.36:11435/api/embeddings"
     embeddings = []
     print("come and embedding....")
     async with aiohttp.ClientSession() as session:
