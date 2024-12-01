@@ -13,10 +13,8 @@ from .api.plan import router as plan_router
 from .api.payment.stripe import router as stripe_router
 from sqlalchemy.orm import sessionmaker, Session, relationship
 
-# Initialize FastAPI
 app = FastAPI(debug=True)
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -45,7 +43,6 @@ try:
 except Exception as e:
     logging.error(f"Error creating tables: {e}")
 
-# Include the routers
 app.include_router(main_router)
 app.include_router(docs_router)
 app.include_router(search_router)
@@ -66,12 +63,10 @@ initial_plans = [
 
 @app.on_event("startup")
 def create_initial_plans():
-    db: Session = next(get_db())  # Get a database session
+    db: Session = next(get_db()) 
     for plan in initial_plans:
-        # Check if the plan already exists
         existing_plan = db.query(Plan).filter(Plan.name == plan["name"]).first()
         if not existing_plan:
-            # Create the plan if it doesn't exist
             new_plan = Plan(
                 name=plan["name"],
                 api_calls=plan["api_calls"],

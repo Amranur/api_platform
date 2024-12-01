@@ -11,7 +11,6 @@ from app.utills.auth import get_current_user
 
 router = APIRouter()
 
-# API Key generation
 class APIKeyCreateRequest(BaseModel):
     name: str
 
@@ -21,18 +20,14 @@ def generate_api_key(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Check the number of API keys already created by the current user
     api_key_count = db.query(APIKey).filter(APIKey.user_id == current_user.id).count()
 
     if current_user.role == "customer":
-        # Check the number of API keys already created by the current customer
         api_key_count = db.query(APIKey).filter(APIKey.user_id == current_user.id).count()
 
-        # Enforce the limit of 5 API keys for customers
         if api_key_count >= 5:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="API key creation limit reached. You cannot generate more than 5 API keys.")
     
-    # Check if an API key with the same name already exists for the current user
     existing_key = db.query(APIKey).filter(
         APIKey.name == api_key_data.name,
         APIKey.user_id == current_user.id
@@ -41,7 +36,6 @@ def generate_api_key(
     if existing_key:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="API key name must be unique for the current user")
 
-    # Generate a new API key
     key = str(uuid.uuid4())
     db_key = APIKey(key=key, name=api_key_data.name, user_id=current_user.id)
     db.add(db_key)
@@ -55,7 +49,7 @@ def toggle_api_key(api_key: str, current_user: User = Depends(get_current_user),
     db_key = db.query(APIKey).filter(APIKey.key == api_key, APIKey.user_id == current_user.id).first()
     if not db_key:
         raise HTTPException(status_code=404, detail="API key not found")
-    db_key.status = not db_key.status  # toggle the status
+    db_key.status = not db_key.status  
     db.commit()
     if db_key.status:
         return {"message": "API key enabled"}

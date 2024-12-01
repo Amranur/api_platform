@@ -1,13 +1,13 @@
 from sqlalchemy import JSON, Column, Integer, String, Boolean, DateTime, ForeignKey, Text,Float
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from .database import Base  # Import the Base from database.py
+from .database import Base  
 
 class User(Base):
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)  # Specify length and non-nullable
+    name = Column(String(255), nullable=False) 
     email = Column(String(255), unique=True, index=True, nullable=False)
     city = Column(String(255), nullable=True)
     hashed_password = Column(String(255), nullable=True)
@@ -20,9 +20,8 @@ class User(Base):
     access_token = Column(String(255), nullable=True)
     register_type = Column(String(55), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow) 
-     # New fields for IP addresses
-    register_ip = Column(String(45), nullable=True)  # For IPv4 or IPv6
-    login_ip = Column(String(45), nullable=True)  # For IPv4 or IPv6
+    register_ip = Column(String(45), nullable=True) 
+    login_ip = Column(String(45), nullable=True) 
 
     # Relationship with the Plan table
     plans = relationship("UserPlan", back_populates="user")
@@ -32,24 +31,23 @@ class Plan(Base):
     __tablename__ = "plans"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), unique=True, nullable=False)  # Plan name
-    api_calls = Column(Integer, nullable=False)  # Number of API calls allowed
-    price = Column(Float, nullable=False)  # Plan price
-    validity_days = Column(Integer, nullable=False)  # Plan duration in days
+    name = Column(String(255), unique=True, nullable=False)  
+    api_calls = Column(Integer, nullable=False)  
+    price = Column(Float, nullable=False)  
+    validity_days = Column(Integer, nullable=False)  
 
 class UserPlan(Base):
     __tablename__ = "user_plan"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # ForeignKey linking to User table
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  
     plan_name = Column(String(255), nullable=False)
     plan_buy_start_date = Column(DateTime, nullable=False)
     plan_expire_date = Column(DateTime, nullable=False)
-    remain_request = Column(Integer, default=1000)  # Assuming default value is 1000
-    total_request = Column(Integer, default=1000)  # Assuming default value is 1000
-    plan_status = Column(Boolean, default=True)  # Assuming default status is True (active)
+    remain_request = Column(Integer, default=1000)  
+    total_request = Column(Integer, default=1000)  
+    plan_status = Column(Boolean, default=True)  
     
-    # Establishing a relationship with the User table
     user = relationship("User", back_populates="plans")
 
 class Payment(Base):
@@ -82,8 +80,7 @@ class RequestLog(Base):
     api_key = Column(String(50), index=True)
     query = Column(String(1024), nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
-    #
-    # token_usage = Column(Integer, nullable=True)
+    
     model_id = Column(String(255), ForeignKey('model_rate_limits.model_id'), nullable=True)
     model = relationship("ModelRateLimit")
 
@@ -103,14 +100,14 @@ class ModelRateLimit(Base):
     __tablename__ = "model_rate_limits"
     
     id = Column(Integer, primary_key=True, index=True)
-    model_id = Column(String(255), unique=True, index=True)  # e.g., 'gemma-7b-it'
-    model_type = Column(String(50), nullable=False)  # New field for model type
+    model_id = Column(String(255), unique=True, index=True)  
+    model_type = Column(String(50), nullable=False)  
     requests_per_minute = Column(Integer, nullable=False)
     requests_per_day = Column(Integer, nullable=False)
     tokens_per_minute = Column(Integer, nullable=True)
     tokens_per_day = Column(Integer, nullable=True)
-    audio_seconds_per_hour = Column(Integer, nullable=True)  # For Speech To Text models
-    audio_seconds_per_day = Column(Integer, nullable=True)  # For Speech To Text models
+    audio_seconds_per_hour = Column(Integer, nullable=True)  
+    audio_seconds_per_day = Column(Integer, nullable=True) 
 
 
 

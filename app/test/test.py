@@ -7,41 +7,38 @@ with open('D:/Imran Nur/api_platform-backend/app/test/chat.jpg', 'rb') as image_
 
 encoded_image_data = base64.b64encode(image_data).decode('utf-8')
 
-url = 'http://36.50.40.36:11435/api/chat'
-headers = {
-    'Content-Type': 'application/json'
-}
-payload = {
-    "model": "llama3.2-vision:11b-instruct-q4_K_M",
-    "messages": [
-        {"role": "system", "content": "You are an assistant designed to provide helpful responses.Always try to generate full code for the given image"},
-        {
-            "role": "user",
-            "content": " continue where you stop to full the code",
-            "images": [encoded_image_data]
-        }
-    ]
-}
+# url = 'http://36.50.40.36:11435/api/chat'
+# payload = {
+#     "model": "llama3.2-vision:11b-instruct-q4_K_M",
+#     "messages": [
+#         {"role": "system", "content": "You are an assistant designed to provide helpful responses.Always try to generate full code for the given image"},
+#         {
+#             "role": "user",
+#             "content": " generate full code for the given image",
+#             "images": [encoded_image_data]
+#         }
+#     ]
+# }
 
-try:
+# try:
    
-    response = requests.post(url, json=payload, headers=headers)
-    response.raise_for_status()  
+#     response = requests.post(url, json=payload, stream=True)
+#     response.raise_for_status()  
     
-    response_content = response.content.decode('utf-8')
+#     response_content = response.content.decode('utf-8')
    
-    json_objects = response_content.split('\n')
-    for json_object in json_objects:
-        if json_object:  
-            data = json.loads(json_object)
-            text = data["message"]["content"]
-            print(text,end=" ")
-except requests.exceptions.ConnectionError as e:
-    print(f"Connection error: {e}")
-except requests.exceptions.HTTPError as e:
-    print(f"HTTP error: {e}")
-except Exception as e:
-    print(f"An error occurred: {e}")
+#     json_objects = response_content.split('\n')
+#     for json_object in json_objects:
+#         if json_object:  
+#             data = json.loads(json_object)
+#             text = data["message"]["content"]
+#             print(text,end=" ")
+# except requests.exceptions.ConnectionError as e:
+#     print(f"Connection error: {e}")
+# except requests.exceptions.HTTPError as e:
+#     print(f"HTTP error: {e}")
+# except Exception as e:
+#     print(f"An error occurred: {e}")
 
 
 
@@ -51,9 +48,9 @@ except Exception as e:
 
 
 def call_llm_api(messages):
-    url = "http://36.50.40.36/api/chat"
+    url = "http://36.50.40.36:11435/api/chat"
     data = {
-        "model": "llama3.2:latest",
+        "model": "llama3.2-vision:11b-instruct-q4_K_M",
         "messages": messages,
         "stream": True 
     }
@@ -79,9 +76,15 @@ def call_llm_api(messages):
 messages = [
     
         {"role": "system", "content": "You are an assistant designed to provide helpful responses."},
-        {"role": "user", "content": f"to do"}
+        {"role": "user", "content": "to do in fast api"}
+    ]
+messages_with_image = [
+    
+        {"role": "system", "content": "You are an assistant designed to provide helpful responses."},
+        {"role": "user", 
+         "content": "analysis of the given image",
+         "images": [encoded_image_data]
+         }
     ]
 
-
-# Call the Ollama API and get the response
-# response_text = call_llm_api(messages)
+response_text = call_llm_api(messages_with_image)

@@ -65,7 +65,6 @@ async def call_embedding_api(texts):
 
 async def stream_chat_ollama(query: str, model: str):
     try:
-        # Construct messages in the required format
         messages = [
             {
                 "role": "system",
@@ -77,7 +76,6 @@ async def stream_chat_ollama(query: str, model: str):
             }
         ]
         
-        # Call LLM API with the constructed messages
         async for response in call_llm_api(messages):
             yield response
     except Exception as e:

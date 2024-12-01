@@ -71,24 +71,32 @@ def login_user(sign_in_data: SignInSchema ,
     if not user:
         raise HTTPException(status_code=400, detail="User not found")
     
-    # Verify the password
+    
     if not verify_password(sign_in_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Username and Password not match!")
     
     if not user.email_verified:
-        # Generate a new verification code and update the expiration
         ev_code, ev_code_expire = generate_code_and_expiry()
         user.ev_code = ev_code
         user.ev_code_expire = ev_code_expire
         db.commit()
 
-        # Send the verification email
+        
         background_tasks.add_task(send_verification_email, user.email, user.ev_code)
 
         raise HTTPException(status_code=400, detail="Email not verified. A new verification code has been sent to your email.")
     
+    user_plan = db.query(UserPlan).filter(UserPlan.user_id == user.id).first()
+    if user_plan and user_plan.plan_expire_date < datetime.now():
+        user_plan.plan_name = "Explorer"
+        user_plan.plan_buy_start_date = datetime.now()
+        user_plan.plan_expire_date = datetime.now() + timedelta(days=30)
+        user_plan.remain_request = 1200
+        user_plan.total_request = 1200
+        db.commit()
+        
     client_ip = request.client.host
-    user.login_ip = client_ip  # Save the login IP
+    user.login_ip = client_ip  
     db.commit()
     access_token = create_access_token(data={"user_id": str(user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),db_session=db)
     return {"access_token": access_token, "token_type": "Bearer","user_id":user.id}
@@ -100,14 +108,11 @@ def register_customer(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    # Check if email already exists
     existing_user = db.query(User).filter(User.email == data.email).first()
     if existing_user:
-        # Generate access token
         access_token = create_access_token(data={"user_id": str(existing_user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES), db_session=db)
 
         return {"message": "ok", "access_token": access_token, "user_id": existing_user.id}
-    # Get client IP address
     client_ip = request.client.host
    
     user = User(
@@ -120,7 +125,7 @@ def register_customer(
         ev_code=None,  
         ev_code_expire=None,  
         register_type="google",
-        register_ip=client_ip  # Save registration IP for Google sign-in  
+        register_ip=client_ip  
     )
 
     db.add(user)
@@ -142,7 +147,6 @@ def register_customer(
     )
     db.add(new_user_plan)
     db.commit()
-    # Generate access token
     access_token = create_access_token(data={"user_id": str(user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES), db_session=db)
 
     return {"message": "ok", "access_token": access_token,"user_id":user.id}
@@ -157,14 +161,13 @@ def register_admin(data: UserCreateRequest, db: Session = Depends(get_db)):
         city=data.city,
         hashed_password=hashed_password,
         email_verified=True,
-        role="admin"  # Fixed role
+        role="admin"  
     )
     db.add(user)
     db.commit()
     db.refresh(user)
     return {"message": "Admin registered successfully"}
 
-# User login and token generation
 
 @router.post("/login")
 def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -173,12 +176,10 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
     if not user:
         raise HTTPException(status_code=400, detail="User not found")
     
-    # Verify the password
     if not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Username and Password not match!")
     
     if not user.email_verified:
-        # Generate a new verification code and update the expiration
         ev_code, ev_code_expire = generate_code_and_expiry()
         user.ev_code = ev_code
         user.ev_code_expire = ev_code_expire
@@ -211,14 +212,12 @@ def verification_email(
     if user.email_verified:
         raise HTTPException(status_code=400, detail="Email is already verified")
 
-    # Generate verification code and expiry time
     ev_code, ev_code_expire = generate_code_and_expiry()
 
     user.ev_code = ev_code
     user.ev_code_expire = ev_code_expire
     db.commit()
 
-    # Send the verification code to the user's email in the background
     background_tasks.add_task(send_verification_email, email_data.gmail, ev_code)
 
     return {"message": "Verification code sent to email"}
@@ -228,7 +227,6 @@ class VerifyEmailRequest(BaseModel):
     ev_code: str
 @router.post("/verify-email")
 def verify_email(data: VerifyEmailRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    # Find the user by their email
     user = db.query(User).filter(User.email == data.email).first()
 
     if not user:
@@ -240,12 +238,10 @@ def verify_email(data: VerifyEmailRequest, background_tasks: BackgroundTasks, db
     if user.ev_code_expire < datetime.utcnow():
         raise HTTPException(status_code=400, detail="Verification code has expired")
 
-    # If everything is okay, verify the email
     user.email_verified = True
-    user.ev_code = None  # Optionally clear the verification code
-    user.ev_code_expire = None  # Clear the expiration time
+    user.ev_code = None  
+    user.ev_code_expire = None  
     db.commit()
-    # Automatically assign the "Explorer" plan
     explorer_plan = db.query(Plan).filter(Plan.name == "Explorer").first()
 
     if not explorer_plan:
@@ -282,7 +278,6 @@ def send_forgot_password_otp(data: ForgotPasswordRequest,background_tasks: Backg
     user.fp_code_expire = fp_code_expire 
     db.commit()
 
-    # Send the forgot password code to the user's email (implement `send_email_otp` according to your needs)
     background_tasks.add_task(send_verification_email, data.email, fp_code)
 
     return {"message": "Forgot password code sent to email"}
@@ -293,8 +288,8 @@ class ResetPasswordSchema(BaseModel):
     new_password: str
 @router.post("/reset-password")
 def reset_password(
-    reset_data: ResetPasswordSchema,  # Use schema class
-    background_tasks: BackgroundTasks,  # For background task
+    reset_data: ResetPasswordSchema,  
+    background_tasks: BackgroundTasks,  
     db: Session = Depends(get_db)
 ):
     user = db.query(User).filter(User.email == reset_data.email).first()
@@ -308,11 +303,10 @@ def reset_password(
     if user.fp_code_expire < datetime.utcnow():
         raise HTTPException(status_code=400, detail="Forgot password code has expired")
 
-    # Reset the user's password
     hashed_password = get_password_hash(reset_data.new_password)
     user.hashed_password = hashed_password
-    user.fp_code = None  # Clear the forgot password code
-    user.fp_code_expire = None  # Clear the expiration time
+    user.fp_code = None  
+    user.fp_code_expire = None  
     db.commit()
 
     # Add background task to send email
@@ -341,15 +335,12 @@ class UpgradeToPaidRequest(BaseModel):
 
 @router.post("/upgrade-to-paid_current_user")
 def upgrade_to_paid(amount: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # Check if the user exists
     if not current_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Check if the user has the role 'customer'
     if current_user.role != "customer":
         raise HTTPException(status_code=400, detail="User is not a customer or already upgraded")
 
-    # Update the user's role based on the amount
     if amount == 500:
         current_user.role = "general_paid"
     elif amount == 1000:
@@ -357,11 +348,9 @@ def upgrade_to_paid(amount: int, current_user: User = Depends(get_current_user),
     else:
         raise HTTPException(status_code=400, detail="Invalid amount")
 
-    # Commit the changes to the database
     db.commit()
     db.refresh(current_user)
 
-    # Create a new payment record
     payment = Payment(
         user_id=current_user.id,
         amount=amount,

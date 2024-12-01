@@ -83,7 +83,6 @@ def get_all_documentation(db: Session, skip: int = 0, limit: int = 10,
         else:
             raise HTTPException(status_code=400, detail="Invalid sort order. Use 'asc' or 'desc'.")
     
-    # routerly offset and limit after filtering and sorting
     query = query.offset(skip).limit(limit)
     
     return query.all()
