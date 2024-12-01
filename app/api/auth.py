@@ -110,6 +110,14 @@ def register_customer(
 ):
     existing_user = db.query(User).filter(User.email == data.email).first()
     if existing_user:
+        user_plan = db.query(UserPlan).filter(UserPlan.user_id == existing_user.id).first()
+        if user_plan and user_plan.plan_expire_date < datetime.now():
+            user_plan.plan_name = "Explorer"
+            user_plan.plan_buy_start_date = datetime.now()
+            user_plan.plan_expire_date = datetime.now() + timedelta(days=30)
+            user_plan.remain_request = 1200
+            user_plan.total_request = 1200
+            db.commit()
         access_token = create_access_token(data={"user_id": str(existing_user.id)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES), db_session=db)
 
         return {"message": "ok", "access_token": access_token, "user_id": existing_user.id}
